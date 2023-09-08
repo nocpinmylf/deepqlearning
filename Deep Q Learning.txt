@@ -1,0 +1,39 @@
+Bản chất:
+  - Là thuật toán Reinforcement Learning, nâng cấp của Q Learning
+  - Dùng mạng neural thay vì Q table
+  - Dùng cho bài toán phức tạp, có state continuous và action quá lớn
+
+Thành phần:
+  - Main neural network: Mạng chính, dự đoán giá trị Q, train và update mỗi episode (Tham gia trực tiếp vào môi trường)
+  - Target neural network: Ước tính Q tương lai, ít cập nhật weight hơn mạng main, giúp mạng main ổn định hơn (Giống đứng ngoài quan sát và đưa ra lời khuyên cho mạng main)
+
+Các bước:
+  1. Khởi tạo mạng
+  2. Chọn action ngẫu nhiên từ state hiện tại. Sử dụng thuật toán epsilon greedy policy
+    2.1. Chọn epsilon e [0, 1], khởi tạo thông thường = 0.9
+    2.2. Random số thực x [0, 1]
+    2.3. Nếu x < e thì thực hiện action ngẫu nhiên
+         Nếu x >= e thì chọn action với best Q value
+  3. Thực hiện action, ghi vào replay buffer
+  4. Nếu số lượng exp trong replay buffer đủ số lượng => lấy ngẫu nhiên batch size 
+  5. Train main neural network
+  6. Lặp lại từ bước 2-5
+  7. train target neural network định kỳ sau mỗi n lần train main neural network (hoặc quy tắc khác)
+
+Các khái niệm: 
+  - State size: số lượng state trong môi trường
+  - Action size: số lượng action mà agent có thể thực hiện
+
+  >> Hyperparameters
+  - episode: lần thử
+  - replay buffer: list lưu các action do agent trải nghiệm, gồm current state, action, reward, terminated?, next state
+  - Gamma: discount val
+  - Number of step: Số lượng step trong 1 episode
+  - Epsilon value: Chỉ số cân bằng giữa khám phá và tận dụng, tránh agent đi theo lối mòn, mới train thì epsilon cao thì mô hình khuyến khích khám phá, rồi giảm dần để khai thác giá trị Q cao 
+  - Epsilon decay: Chỉ số suy giảm Epsilon value theo mỗi episode.
+  - Learning rate: Tốc độ học
+  - Target NN update rate: Quy định khi nào thì update mạng target
+  - Hàm loss của Main network: [R + gamma * max(Q(s', a')) - Q(s, a)]
+    + R: Reward
+    + Q(s, a): output của main network, giá trị Q của state, action hiện tại
+    + Q(s', a'): output của target network, giá trị Q của next action và state
